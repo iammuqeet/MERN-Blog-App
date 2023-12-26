@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useContext } from "react";
 import {
   AppBar,
   Box,
@@ -19,6 +19,7 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
 
 import "./style.css";
+import { UserContext } from "../../App";
 
 const pages = ["Blogs"];
 const settings = ["Profile", "Logout"];
@@ -26,6 +27,7 @@ const settings = ["Profile", "Logout"];
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
+  const [userData, setUserData] = useContext(UserContext);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -41,6 +43,28 @@ const Navbar = () => {
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
+
+  useEffect(() => {
+    fetch("http://localhost:3002/user", {
+      credentials: "include",
+    }).then((response) => {
+      response.json().then((data) => {
+        setUserData(data);
+      });
+    });
+  }, []);
+
+  const logout = () => {
+    const response = fetch("http://localhost:3002/logout", {
+      credentials: "include",
+      method: "POST",
+    });
+    if (response.ok) {
+      setUserData(null);
+    }
+  };
+
+  const username = userData?.firstName;
 
   return (
     <AppBar position="static">
@@ -118,20 +142,38 @@ const Navbar = () => {
           <Box sx={{ flexGrow: 0 }}>
             <Box sx={{ flexGrow: 1, display: "flex" }}>
               <Button sx={{ my: 2, color: "white", display: "block" }}>
-                <Link
-                  to="/login"
-                  style={{ color: "white", textDecoration: "none" }}
-                >
-                  Login
-                </Link>
+                {username ? (
+                  <Link
+                    to="/blog/create"
+                    style={{ color: "white", textDecoration: "none" }}
+                  >
+                    Write Blog
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    style={{ color: "white", textDecoration: "none" }}
+                  >
+                    Login
+                  </Link>
+                )}
               </Button>
               <Button sx={{ my: 2, color: "white", display: "block" }}>
-                <Link
-                  to="/register"
-                  style={{ color: "white", textDecoration: "none" }}
-                >
-                  Register
-                </Link>
+                {username ? (
+                  <a
+                    style={{ color: "white", textDecoration: "none" }}
+                    onClick={logout}
+                  >
+                    Logout
+                  </a>
+                ) : (
+                  <Link
+                    to="/register"
+                    style={{ color: "white", textDecoration: "none" }}
+                  >
+                    Register
+                  </Link>
+                )}
               </Button>
             </Box>
             {/* <Tooltip title="Open settings">
