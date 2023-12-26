@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
 import {
   Avatar,
   CssBaseline,
@@ -21,15 +23,42 @@ import { strings } from "./constants";
 const defaultTheme = createTheme();
 
 export default function Login() {
-  const handleSubmit = (event) => {
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [redirectToHome, setRedirectToHome] = useState(false);
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
+
+    try {
+      const response = await fetch("http://localhost:3002/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+        credentials: "include",
+      });
+
+      if (response.ok) {
+        setRedirectToHome(true);
+      } else {
+        alert("Login failed");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
+  const handleChange = (event) => {
+    setFormData({
+      ...formData,
+      [event.target.name]: event.target.value,
+    });
+  };
+  if (redirectToHome) return <Navigate to="/" />;
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">
@@ -63,6 +92,7 @@ export default function Login() {
               name="email"
               autoComplete="email"
               autoFocus
+              onChange={handleChange}
             />
             <TextField
               margin="normal"
@@ -73,6 +103,7 @@ export default function Login() {
               type="password"
               id="password"
               autoComplete="current-password"
+              onChange={handleChange}
             />
             <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
