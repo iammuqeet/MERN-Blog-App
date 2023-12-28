@@ -33,16 +33,20 @@ export default function Login() {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3002/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-        credentials: "include",
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_REQUEST_URL}/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(formData),
+          credentials: "include",
+        }
+      );
 
       if (response.ok) {
+        alert("Successful logged in");
         setRedirectToHome(true);
       } else {
         alert("Login failed");

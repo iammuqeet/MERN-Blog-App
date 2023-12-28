@@ -11,7 +11,7 @@ import {
 import HowToRegIcon from "@mui/icons-material/HowToReg";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
-import { Link } from "react-router-dom";
+import { Link, Navigate } from "react-router-dom";
 
 import ButtonComponent from "../../components/Button";
 import { strings } from "./constants";
@@ -19,6 +19,7 @@ import { strings } from "./constants";
 const defaultTheme = createTheme();
 
 export default function Register() {
+  const [redirectToHome, setRedirectToHome] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -29,19 +30,20 @@ export default function Register() {
     event.preventDefault();
 
     try {
-      const response = await fetch("http://localhost:3002/register", {
+      fetch(`${process.env.REACT_APP_REQUEST_URL}/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        console.log("Registration successful");
-      } else {
-        console.error("Registration failed");
-      }
+      }).then((res) =>
+        res.json().then((data) => {
+          if (data) {
+            alert("Registered successfully");
+            setRedirectToHome(true);
+          }
+        })
+      );
     } catch (error) {
       console.error("Error:", error);
     }
@@ -54,6 +56,7 @@ export default function Register() {
     });
   };
 
+  if (redirectToHome) return <Navigate to="/login" />;
   return (
     <ThemeProvider theme={defaultTheme}>
       <Container component="main" maxWidth="xs">

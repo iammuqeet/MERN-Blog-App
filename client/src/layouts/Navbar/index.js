@@ -19,7 +19,8 @@ import AdbIcon from "@mui/icons-material/Adb";
 import { Link } from "react-router-dom";
 
 import "./style.css";
-import { UserContext } from "../../App";
+// import { UserContext } from "../../App";
+import { UserContext } from "../../UserContext";
 
 const pages = ["Blogs"];
 const settings = ["Profile", "Logout"];
@@ -27,7 +28,8 @@ const settings = ["Profile", "Logout"];
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const [userData, setUserData] = useContext(UserContext);
+  // const [userData, setUserData] = useContext(UserContext);
+  const { setUserInfo, userInfo } = useContext(UserContext);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -45,26 +47,28 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    fetch("http://localhost:3002/user", {
+    fetch(`${process.env.REACT_APP_REQUEST_URL}/user`, {
       credentials: "include",
     }).then((response) => {
       response.json().then((data) => {
-        setUserData(data);
+        // setUserData(data);
+        setUserInfo(data);
       });
     });
   }, []);
 
   const logout = () => {
-    const response = fetch("http://localhost:3002/logout", {
+    const response = fetch(`${process.env.REACT_APP_REQUEST_URL}/logout`, {
       credentials: "include",
       method: "POST",
     });
     if (response.ok) {
-      setUserData(null);
+      // setUserData(null);
+      setUserInfo(null);
     }
   };
 
-  const username = userData?.firstName;
+  const username = userInfo?.firstName;
 
   return (
     <AppBar position="static">
@@ -160,12 +164,13 @@ const Navbar = () => {
               </Button>
               <Button sx={{ my: 2, color: "white", display: "block" }}>
                 {username ? (
-                  <a
+                  <Link
+                    to="/"
                     style={{ color: "white", textDecoration: "none" }}
                     onClick={logout}
                   >
                     Logout
-                  </a>
+                  </Link>
                 ) : (
                   <Link
                     to="/register"
